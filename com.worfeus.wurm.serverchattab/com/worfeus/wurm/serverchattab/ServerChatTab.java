@@ -26,7 +26,7 @@ public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginLi
     boolean enabled;
 
     String chatTab1Name;
-    String chatTab1Lines;
+    String[] chatTab1Lines;
     Color chatTab1Color = Color.white;
     Boolean chatTab1Typable;
     
@@ -36,9 +36,9 @@ public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginLi
     	if (!enabled) return;
     	
     	chatTab1Name = String.valueOf(properties.getProperty("chatTab1Name", EmptyString)).trim();
-        chatTab1Lines = String.valueOf(properties.getProperty("chatTab1Lines", EmptyString));
-        chatTab1Typable = Boolean.valueOf(properties.getProperty("chatTab1Typable", "false"));
-        chatTab1Color = Color.decode("#"+properties.getProperty("chatTab1Color", ColorWhiteString));
+        chatTab1Lines = String.valueOf(properties.getProperty("chatTab1Lines", EmptyString)).trim().split("[|]{2}");
+        chatTab1Typable = Boolean.valueOf(properties.getProperty("chatTab1Typable", "false").trim());
+        chatTab1Color = Color.decode("#"+properties.getProperty("chatTab1Color", ColorWhiteString).trim());
     	chatTab1Name = String.valueOf(properties.getProperty("chatTab1Name", EmptyString)).trim();
     }
 
@@ -46,7 +46,8 @@ public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginLi
     	if (!enabled) return;
     	
         try {
-            player.getCommunicator().sendMessage(new Message(null, (byte) 0, chatTab1Name, chatTab1Lines, chatTab1Color.getRed(), chatTab1Color.getGreen(), chatTab1Color.getBlue()));
+        	for(String line : chatTab1Lines)
+            player.getCommunicator().sendMessage(new Message(null, (byte) 0, chatTab1Name, line, chatTab1Color.getRed(), chatTab1Color.getGreen(), chatTab1Color.getBlue()));
         } catch (Throwable ex) {
             logSevere("Error loading " + modName + " mod", ex);
             throw new RuntimeException(ex);
