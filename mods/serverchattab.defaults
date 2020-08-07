@@ -7,26 +7,29 @@ sharedClassLoader=true
 # false - mod disabled and will not add tabs
 enabled=true
 
+#chatTabsCount - how many tabs to add
+chatTabsCount=3
+
 ### Tabs 
 # --- Tab-1 definition ---
 # chatTab1Name - empty means disabled and will not add tab. [default="", means disabled]
-chatTab1Name = Server-Info
+chatTabName1 = Server-Info
 # chatTab1Lines- use '||' to split lines, can '||||' to have empty-seperating lines also [default=""]
-chatTab1Lines = Welcome, here are the server rules:||||Rule-1: ...||Rule-2: ...
+chatTabLines1 = Welcome, here are the server rules:||||Rule-1: ...||Rule-2: ...
 # hex RGB color, can easy select one from here: https://en.wikipedia.org/wiki/Web_colors#Extended_colors , [default=FFFFFF, means white]
-chatTab1Color = FFFFFF
+chatTabColor1 = FFFFFF
 # Typable? if false - info only tab and can't type to other players, if true - can chat with other players. [default=false]
-chatTab1Typable = false
+chatTabTypable1 = false
 
 # --- Tab-2 definition ---
-chatTab2Name = Subject-1
-chatTab2Lines = Welcome to Subject-1.
-chatTab2Color = 008000
-chatTab2Typable = true
+chatTabName2 = Subject-1
+chatTabLines2 = Welcome to Subject-1.
+chatTabColor2 = 008000
+chatTabTypable2 = true
 
 # --- Tab-3 definition ---
-chatTab3Name = ""
-chatTab3Lines = This tab wont show
+chatTabName3 = ""
+chatTabLines3 = This tab wont show
 
 
-#.. supports 1..9 tabs
+#.. supports [1..chatTabsCount] tabs
