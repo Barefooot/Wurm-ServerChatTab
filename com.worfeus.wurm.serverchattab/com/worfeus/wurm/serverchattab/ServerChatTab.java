@@ -20,7 +20,6 @@ public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginLi
 	private static final Logger logger = Logger.getLogger(modName);
 	static final String EmptyString = "";
 	static final String ColorWhiteString = "FFFFFF";
-	
 
 	
     boolean enabled;
@@ -54,10 +53,10 @@ public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginLi
 	    tabsTypables = new Boolean[tabsCount];
     	
     	for (int tabIdx = 0; tabIdx < tabsCount; tabIdx++) {
-	    	tabsNames[tabIdx] = String.valueOf(properties.getProperty("tabName."+tabIdx, EmptyString)).trim();
-	        tabsLines[tabIdx] = String.valueOf(properties.getProperty("tabLines."+tabIdx, EmptyString)).trim().split("[|]{2}");
-	        tabsColors[tabIdx] = Color.decode("#"+properties.getProperty("tabColor."+tabIdx, ColorWhiteString).trim());
-	        tabsTypables[tabIdx] = Boolean.valueOf(properties.getProperty("tabTypable."+tabIdx, "false").trim());
+	    	tabsNames[tabIdx] = String.valueOf(properties.getProperty("tabName."+tabIdx+1, EmptyString)).trim();
+	        tabsLines[tabIdx] = String.valueOf(properties.getProperty("tabLines."+tabIdx+1, EmptyString)).trim().split("[|]{2}");
+	        tabsColors[tabIdx] = Color.decode("#"+properties.getProperty("tabColor."+tabIdx+1, ColorWhiteString).trim());
+	        tabsTypables[tabIdx] = Boolean.valueOf(properties.getProperty("tabTypable."+tabIdx+1, "false").trim());
 		}
     }
 
@@ -97,7 +96,13 @@ public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginLi
         return MessagePolicy.PASS;
     }
 
+    public String getVersion() {
+        return "v2.0.0.1-alpha";
+    }
 
+	// -------------------------
+
+	// TODO: need to move this to shared library mod. 
     public static void logSevere(String msg, Throwable e) {
         if(logger != null) 
             logger.log(Level.SEVERE, msg, e);        
@@ -113,7 +118,4 @@ public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginLi
             logger.log(Level.INFO, msg);
     }
 
-    public String getVersion() {
-        return "v2.0.0.1-alpha";
-    }
 }
