@@ -21,14 +21,11 @@ tabName.1 = Server-Info
 tabLines.1 = Welcome, here are the server rules:||||Rule-1: ...||Rule-2: ...
 # tabColor.x - hex RGB color, can easy select one from here: https://en.wikipedia.org/wiki/Web_colors#Extended_colors , [default=FFFFFF, means white]
 tabColor.1 = FFFFFF
-# tabTypable.x - if false - info only tab and can't type to other players, if true - can chat with other players. [default=false]
-tabTypable.1 = false
 
 # --- Tab-2 definition ---
 tabName.2 = Subject-1
 tabLines.2 = Welcome to Subject-1.
 tabColor.2 = 228B22
-tabTypable.2 = true
 
 # --- Tab-3 definition ---
 tabName.3 =

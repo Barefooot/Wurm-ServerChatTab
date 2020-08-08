@@ -2,7 +2,6 @@ package com.worfeus.wurm.serverchattab;
 
 import com.wurmonline.server.players.Player;
 import com.wurmonline.server.Message;
-import com.wurmonline.server.creatures.Communicator;
 
 import java.awt.Color;
 import java.util.Properties;
@@ -10,14 +9,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.gotti.wurmunlimited.modloader.interfaces.Configurable;
-import org.gotti.wurmunlimited.modloader.interfaces.MessagePolicy;
 import org.gotti.wurmunlimited.modloader.interfaces.PlayerLoginListener;
-import org.gotti.wurmunlimited.modloader.interfaces.PlayerMessageListener;
 import org.gotti.wurmunlimited.modloader.interfaces.WurmServerMod;
 
-public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginListener, PlayerMessageListener {
-	private static final String modName = "ServerChatTab"; 
-	private static final Logger logger = Logger.getLogger(modName);
+public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginListener {
+	static final String modName = "ServerChatTab"; 
+	static final Logger logger = Logger.getLogger(modName);
 	static final String EmptyString = "";
 	static final String ColorWhiteString = "FFFFFF";
 
@@ -30,7 +27,6 @@ public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginLi
     String[] tabsNames;
     String[][] tabsLines;
     Color[] tabsColors;
-    Boolean[] tabsTypables;
     
     
     public void configure(Properties properties) {
@@ -39,7 +35,8 @@ public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginLi
 		} catch (Exception ex) {
 			enabled = false;
 		}
-    	if (!enabled) return;
+    	if (!enabled) 
+    		return;
     	
     	try {
     		debug = Boolean.valueOf(properties.getProperty("debug", "false"));
@@ -64,21 +61,20 @@ public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginLi
 	    tabsNames = new String[tabsCount];
 	    tabsLines = new String[tabsCount][];
 	    tabsColors = new Color[tabsCount];
-	    tabsTypables = new Boolean[tabsCount];
     	
     	for (int tabIdx = 0; tabIdx < tabsCount; tabIdx++) {
 	    	tabsNames[tabIdx] = String.valueOf(properties.getProperty("tabName."+(tabIdx+1), EmptyString)).trim();
 	        tabsLines[tabIdx] = String.valueOf(properties.getProperty("tabLines."+(tabIdx+1), EmptyString)).trim().split("[|]{2}");
 	        tabsColors[tabIdx] = Color.decode("#"+properties.getProperty("tabColor."+(tabIdx+1), ColorWhiteString).trim());
-	        tabsTypables[tabIdx] = Boolean.valueOf(properties.getProperty("tabTypable."+(tabIdx+1), "false").trim());
 	        
 	    	if (debug)
-	    		logInfo("tab added: tabName." + (tabIdx+1) + "='" + tabsNames[tabIdx] + "', Typable=" + tabsTypables[tabIdx]);
+	    		logInfo("tab added: tabName." + (tabIdx+1) + "='" + tabsNames[tabIdx] + "'");
 		}
     }
 
     public void onPlayerLogin(Player player){
-    	if (!enabled) return;
+    	if (!enabled) 
+    		return;
 
     	if (debug)
     		logInfo("Handling onPlayerLogin, player='" + player.getName() + "', tabsCount=" + tabsCount);
@@ -87,7 +83,7 @@ public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginLi
 			if (isNullOrEmpty(tabsNames[tabIdx])) continue;
 			
 	    	if (debug)
-	    		logInfo("Adding tab to player='" + player.getName() + "', tabName='" + tabsNames[tabIdx] + "', tabLines.length=" + tabsLines[tabIdx].length + ", tabTypables=" + tabsTypables[tabIdx]);
+	    		logInfo("Adding tab to player='" + player.getName() + "', tabName='" + tabsNames[tabIdx] + "', tabLines.length=" + tabsLines[tabIdx].length);
 			
 	        try {
 	        	for(String tabLines : tabsLines[tabIdx]) {
@@ -100,30 +96,7 @@ public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginLi
 	        }
 		}
     }
-
-    @Deprecated
-	@Override
-	public boolean onPlayerMessage(Communicator communicator, String message) {
-		return false;
-	}
-
-    @Override
-    public MessagePolicy onPlayerMessage(Communicator communicator, String message, String title) {
-    	if (!enabled) return MessagePolicy.PASS;
-
-    	if (debug)
-    		logInfo("Handling onPlayerMessage, title='" + title + "', tabTypables=TBD");
-
-
-//		for (int tabIdx = 0; tabIdx < tabsCount; tabIdx++) {
-////	        if (title.equals(tab1Name) && !tab1Typable && !message.startsWith("#") && !message.startsWith("/"))
-////	            return MessagePolicy.DISCARD;
-//		}
-
-		logInfo("Handling onPlayerMessage, returning MessagePolicy=" + MessagePolicy.PASS);
-        return MessagePolicy.PASS;
-    }
-
+    
     public String getVersion() {
         return "v2.0.0.0";
     }
@@ -151,5 +124,4 @@ public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginLi
             return true;
         return false;
     }
-
 }
