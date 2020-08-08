@@ -23,6 +23,7 @@ public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginLi
 
 	
     boolean enabled;
+    boolean debug;
     
     int tabsCount;
 
@@ -41,11 +42,24 @@ public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginLi
     	if (!enabled) return;
     	
     	try {
+    		debug = Boolean.valueOf(properties.getProperty("debug", "false"));
+		} catch (Exception ex) {
+			debug = false;
+		}
+    	
+    	if (debug)
+    		logInfo("enabled=" + enabled);
+    	
+    	try {
     		tabsCount = Math.max(0, Integer.valueOf(properties.getProperty("tabsCount", "0").trim()));
 		} catch (Exception e) {
     		tabsCount = 0;
 		}
     	if (tabsCount == 0) return;
+    	
+    	if (debug)
+    		logInfo("tabsCount=" + tabsCount);
+    	
 
 	    tabsNames = new String[tabsCount];
 	    tabsLines = new String[tabsCount][];
@@ -53,18 +67,27 @@ public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginLi
 	    tabsTypables = new Boolean[tabsCount];
     	
     	for (int tabIdx = 0; tabIdx < tabsCount; tabIdx++) {
-	    	tabsNames[tabIdx] = String.valueOf(properties.getProperty("tabName."+tabIdx+1, EmptyString)).trim();
-	        tabsLines[tabIdx] = String.valueOf(properties.getProperty("tabLines."+tabIdx+1, EmptyString)).trim().split("[|]{2}");
-	        tabsColors[tabIdx] = Color.decode("#"+properties.getProperty("tabColor."+tabIdx+1, ColorWhiteString).trim());
-	        tabsTypables[tabIdx] = Boolean.valueOf(properties.getProperty("tabTypable."+tabIdx+1, "false").trim());
+	    	tabsNames[tabIdx] = String.valueOf(properties.getProperty("tabName."+(tabIdx+1), EmptyString)).trim();
+	        tabsLines[tabIdx] = String.valueOf(properties.getProperty("tabLines."+(tabIdx+1), EmptyString)).trim().split("[|]{2}");
+	        tabsColors[tabIdx] = Color.decode("#"+properties.getProperty("tabColor."+(tabIdx+1), ColorWhiteString).trim());
+	        tabsTypables[tabIdx] = Boolean.valueOf(properties.getProperty("tabTypable."+(tabIdx+1), "false").trim());
+	        
+	    	if (debug)
+	    		logInfo("tab added: tabName." + (tabIdx+1) + "='" + tabsNames[tabIdx] + "', Typable=" + tabsTypables[tabIdx]);
 		}
     }
 
     public void onPlayerLogin(Player player){
     	if (!enabled) return;
 
+    	if (debug)
+    		logInfo("Handling onPlayerLogin, player='" + player.getName() + "', tabsCount=" + tabsCount);
+
 		for (int tabIdx = 0; tabIdx < tabsCount; tabIdx++) {
-			if (tabsNames[tabIdx] == EmptyString) continue;
+			if (isNullOrEmpty(tabsNames[tabIdx])) continue;
+			
+	    	if (debug)
+	    		logInfo("Adding tab to player='" + player.getName() + "', tabName='" + tabsNames[tabIdx] + "', tabLines.length=" + tabsLines[tabIdx].length + ", tabTypables=" + tabsTypables[tabIdx]);
 			
 	        try {
 	        	for(String tabLines : tabsLines[tabIdx]) {
@@ -88,16 +111,21 @@ public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginLi
     public MessagePolicy onPlayerMessage(Communicator communicator, String message, String title) {
     	if (!enabled) return MessagePolicy.PASS;
 
+    	if (debug)
+    		logInfo("Handling onPlayerMessage, title='" + title + "', tabTypables=TBD");
+
+
 //		for (int tabIdx = 0; tabIdx < tabsCount; tabIdx++) {
 ////	        if (title.equals(tab1Name) && !tab1Typable && !message.startsWith("#") && !message.startsWith("/"))
 ////	            return MessagePolicy.DISCARD;
 //		}
-    
+
+		logInfo("Handling onPlayerMessage, returning MessagePolicy=" + MessagePolicy.PASS);
         return MessagePolicy.PASS;
     }
 
     public String getVersion() {
-        return "v2.0.0.1-alpha";
+        return "v2.0.0.0";
     }
 
 	// -------------------------
@@ -105,17 +133,23 @@ public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginLi
 	// TODO: need to move this to shared library mod. 
     public static void logSevere(String msg, Throwable e) {
         if(logger != null) 
-            logger.log(Level.SEVERE, msg, e);        
+            logger.log(Level.SEVERE, modName + ": " + msg, e);        
     }
 
     public static void logWarning(String msg) {
         if(logger != null) 
-            logger.log(Level.WARNING, msg);
+            logger.log(Level.WARNING, modName + ": " + msg);
     }
 
     public static void logInfo(String msg) {
         if(logger != null) 
-            logger.log(Level.INFO, msg);
+            logger.log(Level.INFO, modName + ": " + msg);
+    }
+
+    public static boolean isNullOrEmpty(String str) {
+        if(str == null || str.isEmpty())
+            return true;
+        return false;
     }
 
 }
