@@ -1,127 +1,127 @@
-/**
- * Created by Wim on 1/23/2018.
- */
-
 package com.worfeus.wurm.serverchattab;
-
 
 import com.wurmonline.server.players.Player;
 import com.wurmonline.server.Message;
 
-import java.util.Iterator;
+import java.awt.Color;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-//import org.gotti.wurmunlimited.modloader.classhooks.HookManager;
-import javassist.ClassPool;
-import javassist.CtClass;
-import org.gotti.wurmunlimited.modloader.classhooks.HookManager;
+
 import org.gotti.wurmunlimited.modloader.interfaces.Configurable;
-import org.gotti.wurmunlimited.modloader.interfaces.Initable;
-import org.gotti.wurmunlimited.modloader.interfaces.PreInitable;
-//import org.gotti.wurmunlimited.modloader.interfaces.ServerStartedListener;
 import org.gotti.wurmunlimited.modloader.interfaces.PlayerLoginListener;
 import org.gotti.wurmunlimited.modloader.interfaces.WurmServerMod;
-//import org.gotti.wurmunlimited.modloader.interfaces.MessagePolicy;
 
-public class ServerChatTab implements WurmServerMod, Initable, PreInitable, Configurable, PlayerLoginListener {
-    private static final Logger logger = Logger.getLogger("ServerChatTab");
-    String propertyLines[] = new String[10];
+public class ServerChatTab implements WurmServerMod, Configurable, PlayerLoginListener {
+	static final String modName = "ServerChatTab"; 
+	static final Logger logger = Logger.getLogger(modName);
+	static final String EmptyString = "";
+	static final String ColorWhiteString = "FFFFFF";
 
-    public ServerChatTab() {
-    }
+	
+    boolean enabled;
+    boolean debug;
+    
+    int tabsCount;
 
+    String[] tabsNames;
+    String[][] tabsLines;
+    Color[] tabsColors;
+    
+    
     public void configure(Properties properties) {
-        //this.disableWeeds = Boolean.valueOf(properties.getProperty("disableWeeds", Boolean.toString(this.disableWeeds))).booleanValue();
-        //this.extraHarvest = Integer.valueOf(properties.getProperty("extraHarvest", Integer.toString(this.extraHarvest))).intValue();
-        //this.logger.log(Level.INFO, "disableWeeds: " + this.disableWeeds);
-        //this.logger.log(Level.INFO, "extraHarvest: " + this.extraHarvest);
-        propertyLines[0] = String.valueOf(properties.getProperty("TabLine1", "Welcome to the Server Info Tab")).trim();
-        propertyLines[1] = String.valueOf(properties.getProperty("TabLine2", "")).trim();
-        propertyLines[2] = String.valueOf(properties.getProperty("TabLine3", "")).trim();
-        propertyLines[3] = String.valueOf(properties.getProperty("TabLine4", "")).trim();
-        propertyLines[4] = String.valueOf(properties.getProperty("TabLine5", "")).trim();
-        propertyLines[5] = String.valueOf(properties.getProperty("TabLine6", "")).trim();
-        propertyLines[6] = String.valueOf(properties.getProperty("TabLine7", "")).trim();
-        propertyLines[7] = String.valueOf(properties.getProperty("TabLine8", "")).trim();
-        propertyLines[8] = String.valueOf(properties.getProperty("TabLine9", "")).trim();
-        propertyLines[9] = String.valueOf(properties.getProperty("TabLine10", "")).trim();
-    }
+    	try {
+    		enabled = Boolean.valueOf(properties.getProperty("enabled", "false"));
+		} catch (Exception ex) {
+			enabled = false;
+		}
+    	if (!enabled) 
+    		return;
+    	
+    	try {
+    		debug = Boolean.valueOf(properties.getProperty("debug", "false"));
+		} catch (Exception ex) {
+			debug = false;
+		}
+    	
+    	if (debug)
+    		logInfo("enabled=" + enabled);
+    	
+    	try {
+    		tabsCount = Math.max(0, Integer.valueOf(properties.getProperty("tabsCount", "0").trim()));
+		} catch (Exception e) {
+    		tabsCount = 0;
+		}
+    	if (tabsCount == 0) return;
+    	
+    	if (debug)
+    		logInfo("tabsCount=" + tabsCount);
+    	
 
-    public void preInit(){
-
-    }
-
-    public void init(){
-
+	    tabsNames = new String[tabsCount];
+	    tabsLines = new String[tabsCount][];
+	    tabsColors = new Color[tabsCount];
+    	
+    	for (int tabIdx = 0; tabIdx < tabsCount; tabIdx++) {
+	    	tabsNames[tabIdx] = String.valueOf(properties.getProperty("tabName."+(tabIdx+1), EmptyString)).trim();
+	        tabsLines[tabIdx] = String.valueOf(properties.getProperty("tabLines."+(tabIdx+1), EmptyString)).trim().split("[|]{2}");
+	        tabsColors[tabIdx] = Color.decode("#"+properties.getProperty("tabColor."+(tabIdx+1), ColorWhiteString).trim());
+	        
+	    	if (debug)
+	    		logInfo("tab added: tabName." + (tabIdx+1) + "='" + tabsNames[tabIdx] + "'");
+		}
     }
 
     public void onPlayerLogin(Player player){
-        int vRed = 229;
-        int vGreen = 176;
-        int vBlue = 17;
+    	if (!enabled) 
+    		return;
 
-        try {
+    	if (debug)
+    		logInfo("Handling onPlayerLogin, player='" + player.getName() + "', tabsCount=" + tabsCount);
 
-            for( int i = 0; i < propertyLines.length; i++)
-            {
-                String element = propertyLines[i];
-                if (element.equalsIgnoreCase("<BLANK>"))
-                {
-                    player.getCommunicator().sendMessage(new Message(null, (byte) 0, "Server Info","", vRed, vGreen, vBlue));
-                }
-                else
-                {
-                    if (element.equalsIgnoreCase("<EMPTY>") == false)
-                    {
-                        player.getCommunicator().sendMessage(new Message(null, (byte) 0, "Server Info", element, vRed, vGreen, vBlue));
-                    }
-                }
-
-            }
-
-            //player.getCommunicator().sendMessage(new Message(null, (byte) 0, "Server Info", "Welcome to the server info tab", vRed, vGreen, vBlue));
-            //player.getCommunicator().sendMessage(new Message(null, (byte) 0, "Server Info", "", vRed, vGreen, vBlue));
-            //player.getCommunicator().sendMessage(new Message(null, (byte) 0, "Server Info", "Live Map: http://warpware.com/gaming/wu/Rynak/RynakPrime/index.html", vRed, vGreen, vBlue));
-            //player.getCommunicator().sendMessage(new Message(null, (byte) 0, "Server Info", "Website: https://rynak.enjin.com/", vRed, vGreen, vBlue));
-
-        } catch (Throwable var6) {
-            logException("Error loading ServerChatTab mod", var6);
-            throw new RuntimeException(var6);
-        }
+		for (int tabIdx = 0; tabIdx < tabsCount; tabIdx++) {
+			if (isNullOrEmpty(tabsNames[tabIdx])) continue;
+			
+	    	if (debug)
+	    		logInfo("Adding tab to player='" + player.getName() + "', tabName='" + tabsNames[tabIdx] + "', tabLines.length=" + tabsLines[tabIdx].length);
+			
+	        try {
+	        	for(String tabLines : tabsLines[tabIdx]) {
+					Color tabColor = tabsColors[tabIdx];
+					player.getCommunicator().sendMessage(new Message(null, (byte) 0, tabsNames[tabIdx], tabLines, tabColor.getRed(), tabColor.getGreen(), tabColor.getBlue()));
+				}
+	        } catch (Throwable ex) {
+	            logWarning(modName + ": error parsing tabIdx=" + tabIdx + ", disabling tab!");
+	            tabsNames[tabIdx] = EmptyString;
+	        }
+		}
+    }
+    
+    public String getVersion() {
+        return "v2.0.0.0";
     }
 
-    //@Override
-    //public MessagePolicy onPlayerMessage(Communicator communicator, String message, String title) {
-    //    if (title.equals("ServerInfo") && !message.startsWith("#") && !message.startsWith("/")) {
-    //        return MessagePolicy.DISCARD;
-    //    } else {
-    //        return MessagePolicy.PASS;
-    //    }
-   // }
+	// -------------------------
 
-
-    public static void logException(String msg, Throwable e) {
-        if(logger != null) {
-            logger.log(Level.SEVERE, msg, e);
-        }
-
+	// TODO: need to move this to shared library mod. 
+    public static void logSevere(String msg, Throwable e) {
+        if(logger != null) 
+            logger.log(Level.SEVERE, modName + ": " + msg, e);        
     }
 
     public static void logWarning(String msg) {
-        if(logger != null) {
-            logger.log(Level.WARNING, msg);
-        }
-
+        if(logger != null) 
+            logger.log(Level.WARNING, modName + ": " + msg);
     }
 
     public static void logInfo(String msg) {
-        if(logger != null) {
-            logger.log(Level.INFO, msg);
-        }
-
+        if(logger != null) 
+            logger.log(Level.INFO, modName + ": " + msg);
     }
 
-
-
+    public static boolean isNullOrEmpty(String str) {
+        if(str == null || str.isEmpty())
+            return true;
+        return false;
+    }
 }
